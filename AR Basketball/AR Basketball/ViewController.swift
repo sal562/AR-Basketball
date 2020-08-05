@@ -8,6 +8,7 @@
 
 import UIKit
 import SceneKit
+import SceneKit.ModelIO
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
@@ -26,11 +27,47 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Create a new scene
         let scene = SCNScene()
         
+        
         // Set the scene to the view
         sceneView.scene = scene
         addBackboard()
+        
+        registerGestureRecognizer()
     }
     
+    func registerGestureRecognizer() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        sceneView.addGestureRecognizer(tap)
+    }
+    
+    @objc func handleTap(gestureRecognizer: UIGestureRecognizer) {
+//        print("Is this working?")
+        // sceneview to be accessed
+        // access the point of view for scene View - the center point
+        guard let sceneView = gestureRecognizer.view as? ARSCNView else {
+            return
+        }
+        
+        guard let centerPoint = sceneView.pointOfView else {
+            return
+        }
+        
+        // transfor matrix
+        // the orientation
+        // the location of camera
+        // need the orientation and location to determine position of cmera
+        
+        let cameraTransform = centerPoint.transform
+        let cameraLocation = SCNVector3(x: cameraTransform.m41, y: cameraTransform.m42, z: cameraTransform.m43)
+        let cameraOrientation = SCNVector3(x: cameraTransform.m31, y: cameraTransform.m32, z: cameraTransform.m33)
+        
+        // x1 + x2, y1 + y2, z1 + z2
+        let cameraPosition = SCNVector3Make(cameraLocation.x + cameraLocation.x, cameraLocation.y + cameraLocation.y, cameraLocation.z + cameraLocation.z)
+    }
+    
+//            let url = URL(fileURLWithPath: "art.scnassets/hoop.usdz")
+//              let scene = try! SCNScene(url: url, options: [.checkConsistency: true])
+//
     func addBackboard() {
         guard let backboardScene = SCNScene(named: "art.scnassets/hoop.scn") else {
             return
